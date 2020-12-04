@@ -1,15 +1,19 @@
 ---
-
 - name: "Apache installation"
   hosts: prod
   become: true
   vars:
     - ansible_sudo_pass: admin
   pre_tasks:
-   - name: "Install EPEL repo"
-     yum:
-      name: epel-release
+   - name: "Install Repel,git et wget"
+     package:
+      name: '{{ item }}'
       state: present
+      update_cache: yes
+     loop:
+      - epel-release
+      - git
+      - wget
    - name: "Install python-pip"
      yum:
       name: python2-pip.noarch
@@ -19,8 +23,15 @@
      pip:
       name: docker-py
   tasks:
-   - name: "Create Apache container"
-     docker_container:
-       name: webapp
-       image: httpd
-       ports: 80:80
+    - name: Copy website file template
+      template:
+        src: index.html.j2
+        dest: /home/admin/index.html
+    - name: Create Apache container
+      docker_container:
+        name: webapp
+        image: httpd
+        ports:
+          - "80:80"
+        volumes:
+          - /home/admin/index.html:/usr/local/apache2/htdocs/index.html
