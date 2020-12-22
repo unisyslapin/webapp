@@ -1,0 +1,2 @@
+# install 1 role pour wordpress
+- src: https://github.com/diranetafen/ansible-role-containerized-wordpress.git
